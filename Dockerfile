@@ -1,8 +1,10 @@
-FROM maven:3.8.4-openjdk-17 AS build
-COPY . .
-RUN mvn clean package -Dskiptest
-
+# syntax=docker/dockerfile:1
 FROM openjdk:21-jdk
-COPY --from=build /app/demo-0.01-SNAPSHOT.jar demo.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "demo.jar"]
+
+WORKDIR /app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+COPY src ./src
+CMD [ "./mvnw","springboot:run" ]
+
