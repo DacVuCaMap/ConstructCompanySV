@@ -134,6 +134,7 @@ public class StatisticService {
                     existingStatisticDetail.setLicensePlate(statisticDetailRequest.getLicensePlate());
                     existingStatisticDetail.setTypeProduct(statisticDetailRequest.getTypeProduct());
                     existingStatisticDetail.setNote(statisticDetailRequest.getNote());
+                    existingStatisticDetail.setProId(statisticDetailRequest.getProId());
                     currentStatisticDetailsMap.remove(statisticDetailRequest.getStatisticDetailId());
                 } else {
                     StatisticDetail statisticDetail = new StatisticDetail();
@@ -147,6 +148,7 @@ public class StatisticService {
                     statisticDetail.setLicensePlate(statisticDetailRequest.getLicensePlate());
                     statisticDetail.setTypeProduct(statisticDetailRequest.getTypeProduct());
                     statisticDetail.setNote(statisticDetailRequest.getNote());
+                    statisticDetail.setProId(statisticDetailRequest.getProId());
                     currentStatisticDetails.add(statisticDetail);
                 }
             }

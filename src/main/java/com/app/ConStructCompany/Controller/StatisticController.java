@@ -49,7 +49,6 @@ public class StatisticController {
     }
     @GetMapping("/details/{id}")
     public ResponseEntity<?> getStatisticDetails (@PathVariable Long id){
-        System.out.println(id);
         return statisticService.getDetailsStatistic(id);
     }
 }

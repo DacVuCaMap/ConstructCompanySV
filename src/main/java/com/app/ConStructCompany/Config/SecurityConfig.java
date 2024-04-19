@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +32,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("api/**").permitAll()
+                                .requestMatchers("api/auth/login","api/auth/registerbyadmin").permitAll()
+                                .requestMatchers("api/auth/register").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 ).authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -49,9 +51,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfiguration(){
         CorsConfiguration corsConfiguration =new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true); // Cho phép gửi cookie
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000","https://construct-company.vercel.app"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
-        corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",corsConfiguration);
         return source;

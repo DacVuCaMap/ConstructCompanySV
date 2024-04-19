@@ -3,10 +3,13 @@ package com.app.ConStructCompany.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -34,7 +37,14 @@ public class Account implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (isAdmin) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+        else{
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        return authorities;
     }
 
     @Override
