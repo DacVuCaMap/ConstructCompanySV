@@ -51,7 +51,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfiguration(){
         CorsConfiguration corsConfiguration =new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true); // Cho phép gửi cookie
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000","https://construct-company.vercel.app"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000","https://tiendong.vercel.app"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

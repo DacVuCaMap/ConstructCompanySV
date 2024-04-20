@@ -26,6 +26,7 @@ public class SellerController {
         BeanUtils.copyProperties(sellerRequest,seller);
         seller.setCreate_at(new Date());
         seller.setId(1L);
+        System.out.println(seller);
         sellerRepository.save(seller);
         return ResponseEntity.ok("ok");
     }
