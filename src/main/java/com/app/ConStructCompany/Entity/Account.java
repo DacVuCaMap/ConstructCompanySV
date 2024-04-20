@@ -34,6 +34,8 @@ public class Account implements UserDetails {
     private Date createAt;
     @Column(name = "isAdmin")
     private boolean isAdmin;
+    @Column(name = "isDeleted")
+    private boolean isDeleted;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -35,7 +35,9 @@ public class AuthenticationController {
     private String frontendUrl;
     @PostMapping("/login")
     public ResponseEntity<?> loginInto(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) throws URISyntaxException {
+        System.out.println(loginRequest);
         int timeExpires = loginRequest.isRemember() ? -1 : 24*60*60;
+
         //get domain
         URI uri = new URI(frontendUrl);
         String domain = uri.getHost();

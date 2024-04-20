@@ -38,9 +38,9 @@ public class AuthenticationService {
                 .fullName(registerRequest.getFullName())
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .isAdmin(registerRequest.isAdmin())
+                .isDeleted(false)
                 .createAt(new Date())
                 .build();
-        System.out.println(acc);
         accountRepository.save(acc);
         return RegisterResponse.builder().mess("Success register account: "+acc.getEmail()+" at time: "+acc.getCreateAt())
                 .status(true).build();
