@@ -42,7 +42,7 @@ public class AuthenticationController {
         if (domain.startsWith("www.")) {
             domain = domain.substring(4);
         }
-        System.out.println(domain);
+//        System.out.println(domain);
         try{
             //thuc hien login
             LoginDTO loginDTO = authenticationService.LoginAccount(loginRequest);
@@ -54,7 +54,7 @@ public class AuthenticationController {
             cookie.setMaxAge(timeExpires);
             httpServletResponse.addCookie(cookie);
             loginDTO.setRemember(loginRequest.isRemember());
-            loginDTO.setToken("");
+//            loginDTO.setToken("");
             return ResponseEntity.ok(loginDTO);
         }catch (UsernameNotFoundException | BadCredentialsException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
