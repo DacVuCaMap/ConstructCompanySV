@@ -47,12 +47,12 @@ public class AuthenticationController {
             //thuc hien login
             LoginDTO loginDTO = authenticationService.LoginAccount(loginRequest);
             //add cookie
-            Cookie cookie =new Cookie("jwt",loginDTO.getToken());
-            cookie.setDomain(domain);
-            cookie.setHttpOnly(false);
-            cookie.setPath("/");
-            cookie.setMaxAge(timeExpires);
-            httpServletResponse.addCookie(cookie);
+//            Cookie cookie =new Cookie("jwt",loginDTO.getToken());
+//            cookie.setDomain(domain);
+//            cookie.setHttpOnly(false);
+//            cookie.setPath("/");
+//            cookie.setMaxAge(timeExpires);
+//            httpServletResponse.addCookie(cookie);
             loginDTO.setRemember(loginRequest.isRemember());
 //            loginDTO.setToken("");
             return ResponseEntity.ok(loginDTO);

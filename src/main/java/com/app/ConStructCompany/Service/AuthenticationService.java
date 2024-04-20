@@ -40,6 +40,7 @@ public class AuthenticationService {
                 .isAdmin(registerRequest.isAdmin())
                 .createAt(new Date())
                 .build();
+        System.out.println(acc);
         accountRepository.save(acc);
         return RegisterResponse.builder().mess("Success register account: "+acc.getEmail()+" at time: "+acc.getCreateAt())
                 .status(true).build();
