@@ -66,4 +66,7 @@ public class Order {
 
     @Column(name = "delete_at")
     private Date deleteAt;
+
+    @Column(name = "leftAmount")
+    private Double leftAmount;
 }

@@ -7,12 +7,15 @@ import com.app.ConStructCompany.Request.EditOrderRequest;
 import com.app.ConStructCompany.Request.GetOrdersRequest;
 import com.app.ConStructCompany.Request.SetIsPaymentedRequest;
 import com.app.ConStructCompany.Request.dto.OrderDetailDto;
+import com.app.ConStructCompany.Request.dto.OrderDto;
+import com.app.ConStructCompany.Response.OrderResponse;
 import com.app.ConStructCompany.Response.PostOrderResponse;
 import com.app.ConStructCompany.Service.OrderService;
-import com.app.ConStructCompany.Validator.ExceptionHandle;
+import com.app.ConStructCompany.Service.PaymentService;
 import com.app.ConStructCompany.utils.DateTimeUtils;
 import com.app.ConStructCompany.utils.GenerateUtils;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -32,7 +35,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderDetailRepository orderDetailRepository;
-
+    private final PaymentService paymentService;
+    private final ModelMapper modelMapper;
     @Override
     @Transactional
     public PostOrderResponse addOrder(AddOrderRequest addOrderRequest) {
@@ -71,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
             order.setSeller(seller);
             order.setCreateAt(DateTimeUtils.getCurrentDate());
             order.setOrderCode(newOrderCode);
-
+            order.setLeftAmount(addOrderRequest.getOrder().getTotalAmount());
             Order newOrder = orderRepository.save(order);
 
             List<OrderDetail> orderDetails = new ArrayList<>();
@@ -148,7 +152,8 @@ public class OrderServiceImpl implements OrderService {
             order.setCustomer(customer);
             order.setSeller(seller);
             order.setUpdateAt(DateTimeUtils.getCurrentDate());
-
+            Double leftAmount = editOrderRequest.getOrder().getTotalAmount() - paymentService.CheckLeftAmount(editOrderRequest.getOrder().getId());
+            order.setLeftAmount(leftAmount);
             Order newOrder = orderRepository.save(order);
 
             Map<Long, OrderDetail> currentOrderDetailsMap = new HashMap<>();
@@ -264,5 +269,13 @@ public class OrderServiceImpl implements OrderService {
     private Long getLatesId() {
         Order lastId = orderRepository.findFirstByOrderByIdDesc();
         return lastId != null ? lastId.getId() : null;
+    }
+    @Override
+    public OrderDto convertToOrderDto(Order order){
+        return modelMapper.map(order,OrderDto.class);
+    }
+    @Override
+    public OrderResponse convertToOrderResponse(Order order){
+        return modelMapper.map(order,OrderResponse.class);
     }
 }

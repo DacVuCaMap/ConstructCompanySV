@@ -1,13 +1,10 @@
-package com.app.ConStructCompany.Request.dto;
+package com.app.ConStructCompany.Response;
 
-import com.app.ConStructCompany.Entity.Order;
-import jakarta.persistence.Column;
+import com.app.ConStructCompany.Entity.Customer;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
-public class OrderDto {
+public class OrderResponse {
     private Long id;
     private String representativeCustomer;
     private String representativeSeller;
@@ -16,8 +13,9 @@ public class OrderDto {
     private Double totalCost;
     private Double tax;
     private Double totalAmount;
-    private Long customerId;
+    private Customer customer;
     private Long sellerId;
     private String contractCode;
     private String signingDate;
+    private Double leftAmount;
 }
