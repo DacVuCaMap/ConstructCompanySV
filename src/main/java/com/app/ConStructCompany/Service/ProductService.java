@@ -71,4 +71,7 @@ public class ProductService {
         return productRepository.findByProNameContainingIgnoreCaseAndDeletedFalse(name, pageable);
     }
 
+    public int countProduct(){
+        return productRepository.countByIsDeletedFalse();
+    }
 }

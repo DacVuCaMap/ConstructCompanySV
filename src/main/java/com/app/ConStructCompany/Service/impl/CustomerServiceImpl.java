@@ -139,5 +139,8 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customers;
     }
-
+    @Override
+    public int countCustomer(){
+        return customerRepository.countByIsDeletedFalse();
+    }
 }

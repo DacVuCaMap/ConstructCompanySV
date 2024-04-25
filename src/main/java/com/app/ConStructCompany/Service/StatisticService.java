@@ -240,4 +240,7 @@ public class StatisticService {
         return ResponseEntity.ok().body(getStatisticResponse);
 
     }
+    public int countStatistic(){
+        return statisticRepository.countByIsDeletedFalse();
+    }
 }

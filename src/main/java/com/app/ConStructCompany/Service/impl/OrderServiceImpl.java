@@ -279,4 +279,13 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse convertToOrderResponse(Order order){
         return modelMapper.map(order,OrderResponse.class);
     }
+    @Override
+    public Double calLeftAmount(){
+        List<Order> orderList = orderRepository.findByIsDeletedFalseAndIsPaymentedFalse();
+        return orderList.stream().mapToDouble(Order::getLeftAmount).sum();
+    }
+    @Override
+    public int countOrders(){
+        return orderRepository.countByIsDeletedFalse();
+    }
 }

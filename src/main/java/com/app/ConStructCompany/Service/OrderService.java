@@ -23,4 +23,6 @@ public interface OrderService {
 
     OrderDto convertToOrderDto(Order order);
     OrderResponse convertToOrderResponse(Order order);
+    Double calLeftAmount();
+    int countOrders();
 }

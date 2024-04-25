@@ -14,4 +14,6 @@ public interface CustomerService {
     PostCustomerResponse editCustomer(EditCustomerRequest editCustomerRequest);
     PostCustomerResponse deleteCustomer(Long id);
     Page<Customer> getCustomers(GetCustomersRequest getCustomersRequest);
+
+    int countCustomer();
 }
