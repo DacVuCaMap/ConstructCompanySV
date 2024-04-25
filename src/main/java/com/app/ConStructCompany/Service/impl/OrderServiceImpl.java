@@ -77,7 +77,8 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderCode(newOrderCode);
             order.setLeftAmount(addOrderRequest.getOrder().getTotalAmount());
             Order newOrder = orderRepository.save(order);
-
+            newOrder.setContractCode(order.getContractCode()+newOrder.getId());
+            newOrder = orderRepository.save(newOrder);
             List<OrderDetail> orderDetails = new ArrayList<>();
 
             List<OrderDetailDto> orderDetailDtos = addOrderRequest.getOrderDetails();
