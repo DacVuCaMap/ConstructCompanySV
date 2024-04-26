@@ -37,14 +37,22 @@ public class JWTService {
         return accMail;
     }
     public Claims extraClaim(String token){
-        Claims claims =Jwts.parser().setSigningKey(getSecretKeyBytes()).parseClaimsJws(token).getBody();
-        return claims;
+        try{
+            Claims claims =Jwts.parser().setSigningKey(getSecretKeyBytes()).parseClaimsJws(token).getBody();
+            return claims;
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return null;
     }
     public boolean tokenValid(String token){
         return !checkExpiration(token);
     }
     public boolean checkExpiration(String token){
         Claims claims =extraClaim(token);
+        if (claims==null){
+            return true; 
+        }
         Date expiration =claims.getExpiration();
         return expiration.before(new Date());
     }

@@ -1,5 +1,6 @@
 package com.app.ConStructCompany.Config;
 
+import com.app.ConStructCompany.Response.MessageResponse;
 import com.app.ConStructCompany.Service.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,6 +37,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+            else{
+                System.out.println("khong ton tai session");
+                MessageResponse messageResponse = new MessageResponse();
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                messageResponse.setMessage(response,"tai khoan khong ton tai hoac het phien");
+                return;
             }
         }
         filterChain.doFilter(request, response);
