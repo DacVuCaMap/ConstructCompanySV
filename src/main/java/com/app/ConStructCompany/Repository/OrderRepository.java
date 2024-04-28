@@ -12,7 +12,9 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Order findFirstByOrderByIdDesc();
-    Page<Order> findAllByOrderCodeLikeIgnoreCaseAndIsDeletedFalse(String orderCode, Pageable pageable);
+    @Query("SELECT o FROM Order o WHERE (o.contractCode LIKE :key OR o.customer.companyName LIKE :key)" +
+            "AND isDeleted=false")
+    Page<Order> findAllListWithConditions(String key, Pageable pageable);
     Page<Order> findAllByIsDeletedFalse(Pageable pageable);
     List<Order> findByIsDeletedFalseAndIsPaymentedFalse();
 

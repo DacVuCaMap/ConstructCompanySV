@@ -11,4 +11,6 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
 
     @Query("SELECT COUNT(s) FROM Statistic s WHERE s.isDeleted=false")
     int countByIsDeletedFalse();
+
+    Page<Statistic> findAllByCustomerCompanyNameContainingIgnoreCaseAndIsDeletedFalse(String customerName,Pageable pageable);
 }

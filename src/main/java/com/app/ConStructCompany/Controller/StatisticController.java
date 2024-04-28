@@ -22,9 +22,9 @@ public class StatisticController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getStatistic(@RequestParam Integer size, @RequestParam Integer page) {
+    public ResponseEntity<?> getStatistic(@RequestParam Integer size, @RequestParam Integer page,@RequestParam String search) {
         PageRequest pageRequest = PageRequest.of(page,size);
-        Page<StatisticDTO> statisticPage = statisticService.findAll(pageRequest);
+        Page<StatisticDTO> statisticPage = statisticService.findAll(pageRequest,search);
         return ResponseEntity.ok(statisticPage);
     }
 

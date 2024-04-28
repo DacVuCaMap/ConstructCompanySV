@@ -10,6 +10,7 @@ import org.hibernate.query.Page;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,5 +32,14 @@ public class AccountService {
         AccountDTO accountDTO = new AccountDTO();
         BeanUtils.copyProperties(account,accountDTO);
         return accountDTO;
+    }
+    public ResponseEntity<?> delAcc(Long id){
+        try{
+            accountRepository.deleteById(id);
+            return ResponseEntity.ok().body("success");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 }

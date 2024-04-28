@@ -20,5 +20,9 @@ public class AccountController {
         Page<AccountDTO> accountDTO = accountService.findAccountByPageSize(pageRequest);
         return ResponseEntity.ok(accountDTO);
     }
+    @GetMapping("/del/{id}")
+    public ResponseEntity<?> delAccList (@PathVariable Long id){  
+        return accountService.delAcc(id);
+    }
 
 }

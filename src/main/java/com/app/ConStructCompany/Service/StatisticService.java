@@ -35,8 +35,12 @@ public class StatisticService {
     private final StatisticDetailService statisticDetailService;
     private final StatisticDetailRepository statisticDetailRepository;
 
-    public Page<StatisticDTO> findAll(Pageable pageable) {
-        Page<Statistic> statisticPage = statisticRepository.findAllByIsDeletedFalse(pageable);
+    public Page<StatisticDTO> findAll(Pageable pageable,String search) {
+        System.out.println(search);
+        Page<Statistic> statisticPage = statisticRepository.findAll(pageable);
+        if (search!=null){
+            statisticPage = statisticRepository.findAllByCustomerCompanyNameContainingIgnoreCaseAndIsDeletedFalse(search,pageable);
+        }
         return statisticPage.map(this::convertToStatisticDTO);
     }
 

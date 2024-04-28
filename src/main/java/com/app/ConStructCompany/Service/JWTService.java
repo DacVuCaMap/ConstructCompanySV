@@ -41,9 +41,9 @@ public class JWTService {
             Claims claims =Jwts.parser().setSigningKey(getSecretKeyBytes()).parseClaimsJws(token).getBody();
             return claims;
         }catch (Exception ex){
-            ex.printStackTrace();
+            return null;
         }
-        return null;
+
     }
     public boolean tokenValid(String token){
         return !checkExpiration(token);

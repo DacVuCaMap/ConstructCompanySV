@@ -225,8 +225,8 @@ public class OrderServiceImpl implements OrderService {
 
         Page<Order> orders = orderRepository.findAllByIsDeletedFalse(pageRequest);
         if (!ObjectUtils.isEmpty(getOrdersRequest.getSearch())){
-            String searchQuery = "%" + getOrdersRequest.getSearch() + "%";
-            orders = orderRepository.findAllByOrderCodeLikeIgnoreCaseAndIsDeletedFalse(searchQuery, pageRequest);
+            String searchKey = getOrdersRequest.getSearch();
+            orders = orderRepository.findAllListWithConditions("%"+searchKey+"%", pageRequest);
         }
 
         return ResponseEntity.ok(orders);
