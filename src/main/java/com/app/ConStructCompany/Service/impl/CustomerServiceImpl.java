@@ -1,9 +1,13 @@
 package com.app.ConStructCompany.Service.impl;
 
 import com.app.ConStructCompany.Entity.Customer;
+import com.app.ConStructCompany.Entity.Order;
 import com.app.ConStructCompany.Repository.CustomerRepository;
+import com.app.ConStructCompany.Repository.OrderRepository;
 import com.app.ConStructCompany.Request.*;
+import com.app.ConStructCompany.Request.dto.QLCNDto;
 import com.app.ConStructCompany.Response.PostCustomerResponse;
+import com.app.ConStructCompany.Response.QLCNDtoResponse;
 import com.app.ConStructCompany.Service.CustomerService;
 import com.app.ConStructCompany.utils.DateTimeUtils;
 import lombok.AllArgsConstructor;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,7 +30,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
-
+    private final OrderRepository orderRepository;
     @Override
     public PostCustomerResponse addCustomer(AddCustomerRequest addCustomerRequest) {
 
@@ -138,6 +144,33 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         return customers;
+    }
+    @Override
+    public QLCNDtoResponse getCustomersByCountOrder(GetCustomersRequest getCustomersRequest) {
+        Sort sort = Sort.unsorted();
+        if (getCustomersRequest.getFilter() != null) {
+            sort = Sort.by(getCustomersRequest.getFilter()).descending();
+        }
+
+        PageRequest pageRequest = PageRequest.of(getCustomersRequest.getPageNumber(),
+                getCustomersRequest.getPageSize(),
+                sort);
+        Page<Object[]> results = orderRepository.findCusWithOrder(pageRequest);
+        QLCNDtoResponse qlcnDtoResponse = new QLCNDtoResponse();
+        qlcnDtoResponse.setTotalPages(results.getTotalPages());
+        List<QLCNDto> qlcnDtoList = new ArrayList<>();
+        for (Object[] rs : results){
+            Customer cus = (Customer) rs[0];
+            Long count = (long) rs[1];
+            double leftAmount = (double) rs[2];
+            QLCNDto qlcnDto = new QLCNDto();
+            qlcnDto.setCustomer(cus);
+            qlcnDto.setOrderCount(count);
+            qlcnDto.setTotalLeftAmount(leftAmount);
+            qlcnDtoList.add(qlcnDto);
+        }
+        qlcnDtoResponse.setContent(qlcnDtoList);
+        return qlcnDtoResponse;
     }
     @Override
     public int countCustomer(){

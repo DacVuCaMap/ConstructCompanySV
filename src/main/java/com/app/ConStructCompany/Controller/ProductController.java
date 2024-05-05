@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     private ProductService productService;
 
-
-
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
