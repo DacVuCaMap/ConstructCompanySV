@@ -1,11 +1,14 @@
 package com.app.ConStructCompany.Controller;
 
 import com.app.ConStructCompany.Entity.Product;
+import com.app.ConStructCompany.Repository.ProductRepository;
 import com.app.ConStructCompany.Request.ProductAddRequest;
 import com.app.ConStructCompany.Request.ProductEditRequest;
 import com.app.ConStructCompany.Response.GetProductResponse;
 import com.app.ConStructCompany.Service.ProductService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -13,14 +16,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/product")
+@RequiredArgsConstructor
 public class ProductController {
-    private ProductService productService;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+//    public ProductController(ProductService productService, ProductRepository productRepository) {
+//        this.productService = productService;
+//        this.productRepository = productRepository;
+//    }
 
     @PostMapping("/add-product")
     public ResponseEntity<?> addProduct(@RequestBody @Valid ProductAddRequest productAddRequest){
@@ -89,6 +97,14 @@ public class ProductController {
         Page<Product> productPage = productService.findByDeletedFalseAndNameContaining(name, pageRequest);
         getProductResponse.setProductPage(productPage);
         return ResponseEntity.ok(getProductResponse);
+    }
+    @GetMapping("/find-cus/{name}")
+    public ResponseEntity<?> findCusWithName(@PathVariable String name){
+        Optional<Product> productOptional = productRepository.findByProNameIgnoreCaseAndDeletedFalse(name);
+        if (productOptional.isEmpty()){
+            return ResponseEntity.badRequest().body("khong thay product");
+        }
+        return ResponseEntity.ok().body(productOptional.get());
     }
 }
 
