@@ -12,5 +12,5 @@ import java.util.List;
 @Data
 public class PaymentDetailResponse {
     private List<PaymentDTO> payments;
-    private OrderResponse order;
+    private StatisticResponse statistic;
 }

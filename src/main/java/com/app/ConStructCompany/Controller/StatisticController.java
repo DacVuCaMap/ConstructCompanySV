@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/statistic")
 public class StatisticController {
@@ -32,6 +34,7 @@ public class StatisticController {
     public ResponseEntity<?> addStatistic(@RequestBody StatisticAddRequest statisticAddRequest) {
         Statistic statistic = statisticService.addStatistic(statisticAddRequest);
         if(statistic!=null){
+            statisticService.updateAllStatisticByOrder(statistic.getOrder().getId());
             return ResponseEntity.ok("add thanh cong");
         }else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy id của khách hàng hoặc người bán!");
@@ -40,6 +43,7 @@ public class StatisticController {
 
     @PostMapping("/edit")
     public ResponseEntity<?> editStatistic(@RequestBody StatisticAddRequest statisticAddRequest) {
+
         return statisticService.editStatistic(statisticAddRequest);
     }
 
@@ -50,5 +54,13 @@ public class StatisticController {
     @GetMapping("/details/{id}")
     public ResponseEntity<?> getStatisticDetails (@PathVariable Long id){
         return statisticService.getDetailsStatistic(id);
+    }
+    @GetMapping("/listbyorder")
+    public ResponseEntity<?> getStatisticByOrderId(@RequestParam Long id){
+        List<StatisticDTO> statistics = statisticService.getStatisticByOrder(id);
+        if (statistics.isEmpty()){
+            return ResponseEntity.badRequest().body("Khong co");
+        }
+        return ResponseEntity.ok().body(statistics);
     }
 }

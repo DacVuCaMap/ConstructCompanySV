@@ -8,6 +8,9 @@ import java.util.Date;
 @Data
 public class StatisticDTO {
     private Long id;
+    private Date endDay;
+    private Date startDay;
+    private Double cashLeft;
     private String companyName;
     private Date createAt;
     private Date updateAt;

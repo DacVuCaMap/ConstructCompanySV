@@ -13,12 +13,15 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderId")
-    private Order order;
+    @JoinColumn(name = "statisticId")
+    private Statistic statistic;
     @Column(name = "price")
     private Double price;
     @Column(name = "day")
     private Date day;
     @Column(name = "createAt")
     private Date createAt;
+    @Column(name="Description")
+    private String description;
+
 }

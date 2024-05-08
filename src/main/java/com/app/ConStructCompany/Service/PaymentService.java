@@ -2,8 +2,10 @@ package com.app.ConStructCompany.Service;
 
 import com.app.ConStructCompany.Entity.Order;
 import com.app.ConStructCompany.Entity.Payment;
+import com.app.ConStructCompany.Entity.Statistic;
 import com.app.ConStructCompany.Repository.OrderRepository;
 import com.app.ConStructCompany.Repository.PaymentRepository;
+import com.app.ConStructCompany.Repository.StatisticRepository;
 import com.app.ConStructCompany.Request.RequestPayment;
 import com.app.ConStructCompany.Request.dto.PaymentDTO;
 import lombok.RequiredArgsConstructor;
@@ -18,69 +20,80 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentService {
     public final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
+    private final StatisticRepository statisticRepository;
     private final ModelMapper modelMapper;
-    public List<Payment> getPaymentByOrderId(Long id){
-        return paymentRepository.findAllByOrderId(id);
-    }
     public List<PaymentDTO> getAllPaymentDTO(Long id){
-        List<Payment> paymentList = paymentRepository.findAllByOrderId(id);
+        List<Payment> paymentList = paymentRepository.findAllByStatisticId(id);
         return paymentList.stream().map(this::convertToPaymentDTO).collect(Collectors.toList());
     }
-
+    private List<Payment> getAllByStatisticId(Long id){
+        return paymentRepository.findAllByStatisticId(id);
+    }
     public void addPayment(RequestPayment requestPayment){
         List<Payment> paymentList = new ArrayList<>();
         List<PaymentDTO> listDTO= requestPayment.getPayments();
         try {
-            Optional<Order> orderOptional = orderRepository.findById(requestPayment.getOrderId());
-            if (orderOptional.isEmpty()){
+            Optional<Statistic> statisticOptional = statisticRepository.findById(requestPayment.getStatisticId());
+            if (statisticOptional.isEmpty()){
                 throw new IllegalArgumentException("Đơn hàng không tồn tại");
             }
-            Order order = orderOptional.get();
+            Statistic statistic = statisticOptional.get();
             //check exists
-            List<Payment> paymentCheckExistList = getPaymentByOrderId(order.getId());
+            List<Payment> paymentCheckExistList = getAllByStatisticId(statistic.getId());
             Set<Long> idCheck = new HashSet<>();
             for (PaymentDTO paymentDTO : listDTO){
-                Payment payment = new Payment();
-                if (paymentDTO.getId()!=null){
-                    idCheck.add(paymentDTO.getId());
-                    payment.setId(paymentDTO.getId());
+                if (!paymentDTO.getDay().before(statistic.getStartDay()) || !paymentDTO.getDay().after(statistic.getEndDay())){
+                    Payment payment = new Payment();
+                    if (paymentDTO.getId()!=null){
+                        idCheck.add(paymentDTO.getId());
+                        payment.setId(paymentDTO.getId());
+                    }
+                    payment.setDay(paymentDTO.getDay());
+                    payment.setPrice(paymentDTO.getPrice());
+                    payment.setStatistic(statistic);
+                    payment.setCreateAt(new Date());
+                    payment.setDescription(paymentDTO.getDescription());
+                    paymentList.add(payment);
                 }
-                payment.setDay(paymentDTO.getDay());
-                payment.setPrice(paymentDTO.getPrice());
-                payment.setOrder(order);
-                payment.setCreateAt(new Date());
-                paymentList.add(payment);
+
             }
             for (Payment payment : paymentCheckExistList){
                 if (!idCheck.contains(payment.getId())){
                     paymentRepository.deleteById(payment.getId());
                 }
             }
-//            System.out.println(paymentList);
             paymentRepository.saveAll(paymentList);
-            //update order
-            double left = order.getTotalAmount()-CheckLeftAmount(order.getId());
-            order.setIsPaymented(false);
-            if (left==0.0){
-                order.setIsPaymented(true);
-            }
-            order.setLeftAmount(left);
-            orderRepository.save(order);
+
         }catch (Exception ex){
             ex.printStackTrace();
         }
 
     }
-    public Double CheckLeftAmount(Long id){
-        List<Payment> paymentList = getPaymentByOrderId(id);
-        Double total = paymentList.stream()
-                .mapToDouble(Payment::getPrice) // Lấy giá trị của getPrice từ mỗi phần tử
-                .sum();
-        System.out.println(total);
+    public void addOnePayment(PaymentDTO paymentDTO){
+        Date day = paymentDTO.getDay();
+        Payment payment = new Payment();
+        payment.setDay(paymentDTO.getDay());
+        payment.setPrice(paymentDTO.getPrice());
+        payment.setCreateAt(new Date());
+        payment.setDescription(paymentDTO.getDescription());
+        List<Statistic> statisticList = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(paymentDTO.getOrderId());
+        for (Statistic statistic : statisticList){
+            if (day.before(statistic.getEndDay()) && day.after(statistic.getStartDay())){
+                payment.setStatistic(statistic);
+                paymentRepository.save(payment);
+            }
 
-        return total;
+        }
     }
+//    public Double CheckLeftAmount(Long id){
+//        List<Payment> paymentList = getPaymentByOrderId(id);
+//        Double total = paymentList.stream()
+//                .mapToDouble(Payment::getPrice) // Lấy giá trị của getPrice từ mỗi phần tử
+//                .sum();
+//        System.out.println(total);
+//
+//        return total;
+//    }
     public PaymentDTO convertToPaymentDTO(Payment payment){
         return modelMapper.map(payment,PaymentDTO.class);
     }

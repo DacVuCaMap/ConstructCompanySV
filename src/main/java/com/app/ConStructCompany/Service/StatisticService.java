@@ -1,21 +1,17 @@
 package com.app.ConStructCompany.Service;
 
 import com.app.ConStructCompany.Entity.*;
-import com.app.ConStructCompany.Repository.CustomerRepository;
-import com.app.ConStructCompany.Repository.SellerRepository;
-import com.app.ConStructCompany.Repository.StatisticDetailRepository;
-import com.app.ConStructCompany.Repository.StatisticRepository;
+import com.app.ConStructCompany.Repository.*;
 import com.app.ConStructCompany.Request.StatisticAddRequest;
 import com.app.ConStructCompany.Request.StatisticDetailRequest;
 import com.app.ConStructCompany.Request.StatisticRequest;
 import com.app.ConStructCompany.Request.dto.OrderDetailDto;
+import com.app.ConStructCompany.Request.dto.OrderDto;
 import com.app.ConStructCompany.Request.dto.StatisticDTO;
-import com.app.ConStructCompany.Response.CustomerResponse;
-import com.app.ConStructCompany.Response.GetStatisticResponse;
-import com.app.ConStructCompany.Response.StatisticDetailResponse;
-import com.app.ConStructCompany.Response.StatisticResponse;
+import com.app.ConStructCompany.Response.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,9 +28,11 @@ public class StatisticService {
     private final StatisticRepository statisticRepository;
     private final CustomerRepository customerRepository;
     private final SellerRepository sellerRepository;
+    private final OrderRepository orderRepository;
     private final StatisticDetailService statisticDetailService;
     private final StatisticDetailRepository statisticDetailRepository;
-
+    private final ModelMapper modelMapper;
+    private final PaymentRepository paymentRepository;
     public Page<StatisticDTO> findAll(Pageable pageable,String search) {
         System.out.println(search);
         Page<Statistic> statisticPage = statisticRepository.findAll(pageable);
@@ -56,14 +54,23 @@ public class StatisticService {
 
 
     public Statistic addStatistic(StatisticAddRequest statisticAddRequest) {
+        //check day
+        if (!checkDayIn(statisticAddRequest.getStatistic().getStartDay(), statisticAddRequest.getStatistic().getOrderId())
+        || !checkDayIn(statisticAddRequest.getStatistic().getEndDay(), statisticAddRequest.getStatistic().getOrderId())){
+            return null;
+        }
+        System.out.println("vao day");
         Statistic statistic = new Statistic();
         StatisticRequest statisticRequest = statisticAddRequest.getStatistic();
         List<StatisticDetailRequest> statisticDetailRequests = statisticAddRequest.getStatisticDetails();
         Optional<Customer> OptionCustomer = customerRepository.findById(statisticRequest.getCustomerId());
         Optional<Seller> OptionalSeller = sellerRepository.findById(statisticRequest.getSellerId());
-        if (OptionCustomer.isPresent() && OptionalSeller.isPresent()) {
+        Optional<Order> OptionalOrder = orderRepository.findById(statisticRequest.getOrderId());
+        if (OptionCustomer.isPresent() && OptionalSeller.isPresent() && OptionalOrder.isPresent()) {
             Customer customer = OptionCustomer.get();
             Seller seller = OptionalSeller.get();
+            Order order = OptionalOrder.get();
+            statistic.setOrder(order);
             statistic.setCustomer(customer);
             statistic.setSeller(seller);
             statistic.setRepresentativeCustomer(statisticRequest.getRepresentativeCustomer());
@@ -71,8 +78,13 @@ public class StatisticService {
             statistic.setRepresentativeSeller(statisticRequest.getRepresentativeSeller());
             statistic.setPositionSeller(statisticRequest.getPositionSeller());
             statistic.setTotalAmount(statisticRequest.getTotalAmount());
+            statistic.setEndDay(statisticRequest.getEndDay());
+            statistic.setStartDay(statisticRequest.getStartDay());
             statistic.setCreateAt(new Date());
             statistic.setIsDeleted(false);
+            //set cashleft
+            //khong can
+            //save
             Statistic statisticSave = statisticRepository.save(statistic);
             for (StatisticDetailRequest statisticDetailRequest : statisticDetailRequests) {
                 statisticDetailService.addStatisticDetail(statisticDetailRequest, statisticSave);
@@ -98,7 +110,6 @@ public class StatisticService {
             if (!optionalSeller.isPresent()) {
                 throw new IllegalArgumentException("Không tồn tại người bán");
             }
-
             Customer customer = optionCustomer.get();
             Seller seller = optionalSeller.get();
 
@@ -117,6 +128,8 @@ public class StatisticService {
             statistic.setPositionSeller(statisticRequest.getPositionSeller());
             statistic.setTotalAmount(statisticRequest.getTotalAmount());
             statistic.setUpdateAt(new Date());
+            statistic.setEndDay(statisticRequest.getEndDay());
+            statistic.setStartDay(statisticRequest.getStartDay());
 
             Statistic statisticSave = statisticRepository.save(statistic);
 
@@ -167,7 +180,7 @@ public class StatisticService {
 
             statisticDetailRepository.deleteAll(statisticDetailsToDelete);
             statisticDetailRepository.saveAll(currentStatisticDetails);
-
+            updateAllStatisticByOrder(statisticAddRequest.getStatistic().getOrderId());
             return ResponseEntity.ok("Cập nhật thành công");
         } catch (IllegalArgumentException ex) {
             throw ex;
@@ -208,6 +221,11 @@ public class StatisticService {
         customerResponse.setPositionCustomer(customer.getPositionCustomer());
         customerResponse.setRepresentativeCustomer(customer.getRepresentativeCustomer());
         customerResponse.setEmail(customer.getEmail());
+
+        //order
+        Order order = statistic.getOrder();
+        OrderDto orderDto = order!=null ? modelMapper.map(order, OrderDto.class) : null;
+
         StatisticResponse statisticResponse = new StatisticResponse();
         statisticResponse.setId(statistic.getId());
         statisticResponse.setCustomer(customerResponse);
@@ -219,6 +237,9 @@ public class StatisticService {
         statisticResponse.setTotalAmount(statistic.getTotalAmount());
         statisticResponse.setCreateAt(statistic.getCreateAt());
         statisticResponse.setUpdateAt(statistic.getUpdateAt());
+        statisticResponse.setEndDay(statistic.getEndDay());
+        statisticResponse.setStartDay(statistic.getStartDay());
+        statisticResponse.setOrder(orderDto);
         List<StatisticDetail> getStatisticDetails = statisticDetailRepository.findAllByStatisticId(statistic.getId());
         List<StatisticDetailResponse> responseList = new ArrayList<>();
         for (StatisticDetail statisticDetail : getStatisticDetails){
@@ -244,7 +265,48 @@ public class StatisticService {
         return ResponseEntity.ok().body(getStatisticResponse);
 
     }
+    public List<StatisticDTO> getStatisticByOrder(Long id){
+        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(id);
+        List<StatisticDTO> statisticDTOS = new ArrayList<>();
+        for (Statistic statistic : statistics){
+            StatisticDTO statisticDTO = modelMapper.map(statistic, StatisticDTO.class);
+            statisticDTOS.add(statisticDTO);
+        }
+        return statisticDTOS;
+    }
     public int countStatistic(){
         return statisticRepository.countByIsDeletedFalse();
+    }
+    private boolean checkDayIn(Date day,Long orderId){
+        List<StatisticDTO> list = getStatisticByOrder(orderId);
+        System.out.println("checkDayin" + list);
+        for (StatisticDTO statisticDTO : list){
+            if (!day.before(statisticDTO.getStartDay()) && !day.after(statisticDTO.getEndDay())){
+                return false;
+            }
+        }
+        return true;
+    }
+    public StatisticResponse convertStatisticResponse(Statistic statistic){
+        return modelMapper.map(statistic,StatisticResponse.class);
+    }
+    public void updateAllStatisticByOrder(Long orderId){
+        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(orderId);
+        List<Statistic> statisticNew = new ArrayList<>();
+        double cashLeft = 0.0;
+        for (Statistic statistic : statistics){
+            statistic.setCashLeft(cashLeft);
+            List<Payment> payments = paymentRepository.findAllByStatisticId(statistic.getId());
+            Double sumPay = payments.stream().mapToDouble(Payment::getPrice).sum();
+            cashLeft = statistic.getCashLeft()+sumPay-statistic.getTotalAmount();
+            statisticNew.add(statistic);
+        }
+        statisticRepository.saveAll(statisticNew);
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if (optionalOrder.isPresent()){
+            Order order = optionalOrder.get();
+            order.setLeftAmount(cashLeft);
+            orderRepository.save(order);
+        }
     }
 }

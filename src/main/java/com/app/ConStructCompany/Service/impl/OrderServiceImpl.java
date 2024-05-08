@@ -153,7 +153,8 @@ public class OrderServiceImpl implements OrderService {
             order.setCustomer(customer);
             order.setSeller(seller);
             order.setUpdateAt(DateTimeUtils.getCurrentDate());
-            Double leftAmount = editOrderRequest.getOrder().getTotalAmount() - paymentService.CheckLeftAmount(editOrderRequest.getOrder().getId());
+            //left amount
+            Double leftAmount = editOrderRequest.getOrder().getTotalAmount();
             order.setLeftAmount(leftAmount);
             Order newOrder = orderRepository.save(order);
 

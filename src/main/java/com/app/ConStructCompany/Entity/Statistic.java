@@ -47,4 +47,14 @@ public class Statistic {
 
     @Column(name = "deleted_at")
     private Date deletedAt;
+
+    @Column(name = "endDay")
+    private Date endDay;
+    @Column(name = "startDay")
+    private Date startDay;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderId")
+    private Order order;
+    @Column(name = "cashLeft")
+    private Double cashLeft;
 }

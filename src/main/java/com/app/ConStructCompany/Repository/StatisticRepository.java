@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface StatisticRepository extends JpaRepository<Statistic, Long> {
     Page<Statistic> findAllByIsDeletedFalse(Pageable pageable);
-
+    List<Statistic> findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(Long id);
     @Query("SELECT COUNT(s) FROM Statistic s WHERE s.isDeleted=false")
     int countByIsDeletedFalse();
 
