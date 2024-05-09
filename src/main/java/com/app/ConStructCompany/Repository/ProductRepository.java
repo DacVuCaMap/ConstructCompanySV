@@ -21,4 +21,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     int countByIsDeletedFalse();
 
     Optional<Product> findByProNameIgnoreCaseAndDeletedFalse(String proName);
+    Optional<Product> findByProNameAndDeletedFalse(String proName);
 }
