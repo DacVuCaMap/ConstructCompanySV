@@ -33,6 +33,9 @@ public class ProductController {
     @PostMapping("/add-product")
     public ResponseEntity<?> addProduct(@RequestBody @Valid ProductAddRequest productAddRequest){
         Product product = productService.addProduct(productAddRequest);
+        if (product==null){
+            return ResponseEntity.badRequest().body("Đã ton tại");
+        }
         return ResponseEntity.ok(product);
     }
 
@@ -42,7 +45,7 @@ public class ProductController {
         if(product!=null){
             return ResponseEntity.ok(product);
         }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy id của sản phẩm!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lỗi edit product");
         }
 
     }

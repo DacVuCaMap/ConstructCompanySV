@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -22,6 +23,10 @@ public class ProductService {
     }
 
     public Product addProduct(ProductAddRequest productAddRequest){
+        Optional<Product> productOptional = productRepository.findByProNameAndDeletedFalse(productAddRequest.getProName());
+        if (productOptional.isPresent()){
+            return null;
+        }
         Product product = new Product();
         product.setProName(productAddRequest.getProName());
         product.setUnit(productAddRequest.getUnit());
@@ -35,6 +40,10 @@ public class ProductService {
     }
 
     public Product editProduct(ProductEditRequest productEditRequest){
+        Optional<Product> checkProduct = productRepository.findByProNameAndDeletedFalse(productEditRequest.getProName());
+        if (checkProduct.isPresent() && !Objects.equals(checkProduct.get().getId(), productEditRequest.getId())){
+            return null;
+        }
         Optional<Product> productOptional = productRepository.findById(productEditRequest.getId());
         if(productOptional.isPresent()){
             Product product = productOptional.get();

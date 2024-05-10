@@ -46,7 +46,7 @@ public class ReportService {
             if (!StringUtils.isEmpty(getCellValue(row.getCell(4)))){
                 Optional<Product> product = productRepository.findByProNameAndDeletedFalse(getCellValue(row.getCell(4)));
                 if (!product.isEmpty()){
-                    dto.setProductId(product.get().getId());
+                    dto.setProduct(product.get());
                 }
             }
             if (!StringUtils.isEmpty(getCellValue(row.getCell(5)))) {
@@ -82,7 +82,7 @@ public class ReportService {
             if (!StringUtils.isEmpty(getCellValue(row.getCell(0)))){
                 Optional<Product> product = productRepository.findByProNameAndDeletedFalse(getCellValue(row.getCell(0)));
                 if (!product.isEmpty()){
-                    dto.setProductId(product.get().getId());
+                    dto.setProduct(product.get());
                 }
             }
             dto.setUnit(getCellValue(row.getCell(1)));

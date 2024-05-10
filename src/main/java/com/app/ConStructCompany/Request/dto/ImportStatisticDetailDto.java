@@ -1,10 +1,11 @@
 package com.app.ConStructCompany.Request.dto;
 
+import com.app.ConStructCompany.Entity.Product;
 import lombok.Data;
 
 @Data
 public class ImportStatisticDetailDto {
-    private Long productId;
+    private Product product;
     private String date;
     private String licensePlate;
     private String trailersLicensePlate;
