@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Order findFirstByOrderByIdDesc();
-    @Query("SELECT o FROM Order o WHERE (o.contractCode LIKE :key OR o.customer.companyName LIKE :key)" +
+    @Query("SELECT o FROM Order o WHERE (o.contractCode LIKE :key OR UPPER(o.customer.companyName) LIKE UPPER(:key))" +
             "AND isDeleted=false")
     Page<Order> findAllListWithConditions1(String key, Pageable pageable);
 
