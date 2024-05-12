@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class PaymentService {
     public final PaymentRepository paymentRepository;
     private final StatisticRepository statisticRepository;
+    private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
     public List<PaymentDTO> getAllPaymentDTO(Long id){
         List<Payment> paymentList = paymentRepository.findAllByStatisticId(id);
@@ -76,14 +77,55 @@ public class PaymentService {
         payment.setPrice(paymentDTO.getPrice());
         payment.setCreateAt(new Date());
         payment.setDescription(paymentDTO.getDescription());
-        List<Statistic> statisticList = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(paymentDTO.getOrderId());
-        for (Statistic statistic : statisticList){
-            if (day.before(statistic.getEndDay()) && day.after(statistic.getStartDay())){
-                payment.setStatistic(statistic);
-                paymentRepository.save(payment);
+//        List<Statistic> statisticList = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(paymentDTO.getOrderId());
+//        for (Statistic statistic : statisticList){
+//            if (day.before(statistic.getEndDay()) && day.after(statistic.getStartDay())){
+//                payment.setStatistic(statistic);
+//                paymentRepository.save(payment);
+//            }
+//        }
+        Optional<Statistic> statisticOptional = statisticRepository.findFirstByOrderIdAndIsDeletedFalseOrderByCreateAtDesc(paymentDTO.getOrderId());
+        Statistic statistic = new Statistic();
+        if (statisticOptional.isEmpty()){
+            // create new one
+            Optional<Order> orderOptional = orderRepository.findById(paymentDTO.getOrderId());
+//            System.out.println(orderOptional);
+            if (orderOptional.isPresent()){
+                Order order = orderOptional.get();
+                // time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(payment.getDay());
+                calendar.set(Calendar.DAY_OF_MONTH,1);
+                Date startDay = calendar.getTime();
+                calendar.set(Calendar.DAY_OF_MONTH,-1);
+                Date endDay = calendar.getTime();
+                //end
+                statistic.setOrder(order);
+                statistic.setCustomer(order.getCustomer());
+                statistic.setCashLeft(0.0);
+                statistic.setSeller(order.getSeller());
+                statistic.setRepresentativeCustomer(order.getCustomer().getRepresentativeCustomer());
+                statistic.setPositionCustomer(order.getCustomer().getPositionCustomer());
+                statistic.setRepresentativeSeller(order.getRepresentativeSeller());
+                statistic.setPositionSeller(order.getPositionSeller());
+                statistic.setTotalAmount(0.0);
+                statistic.setCreateAt(new Date());
+                statistic.setStartDay(startDay);
+                statistic.setEndDay(endDay);
+                statistic.setIsDeleted(false);
+                statisticRepository.save(statistic);
+                System.out.println(statistic);
             }
-
+            else{
+                System.out.println("Order khong ton tai");
+            }
         }
+        else{
+            statistic = statisticOptional.get();
+//            System.out.println(statistic);
+        }
+        payment.setStatistic(statistic);
+        paymentRepository.save(payment);
     }
 //    public Double CheckLeftAmount(Long id){
 //        List<Payment> paymentList = getPaymentByOrderId(id);
@@ -97,4 +139,5 @@ public class PaymentService {
     public PaymentDTO convertToPaymentDTO(Payment payment){
         return modelMapper.map(payment,PaymentDTO.class);
     }
+
 }

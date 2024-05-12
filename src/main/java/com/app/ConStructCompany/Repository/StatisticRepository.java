@@ -7,10 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StatisticRepository extends JpaRepository<Statistic, Long> {
     Page<Statistic> findAllByIsDeletedFalse(Pageable pageable);
     List<Statistic> findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(Long id);
+
+    Optional<Statistic> findFirstByOrderIdAndIsDeletedFalseOrderByCreateAtDesc(Long id);
     @Query("SELECT COUNT(s) FROM Statistic s WHERE s.isDeleted=false")
     int countByIsDeletedFalse();
 

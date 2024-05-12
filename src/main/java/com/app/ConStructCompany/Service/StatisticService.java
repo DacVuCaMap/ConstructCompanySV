@@ -306,6 +306,8 @@ public class StatisticService {
         if (optionalOrder.isPresent()){
             Order order = optionalOrder.get();
             order.setLeftAmount(cashLeft);
+            boolean flag = cashLeft == 0 ? true : false;
+            order.setIsPaymented(flag);
             orderRepository.save(order);
         }
     }
