@@ -69,4 +69,5 @@ public class Order {
 
     @Column(name = "leftAmount")
     private Double leftAmount;
+
 }

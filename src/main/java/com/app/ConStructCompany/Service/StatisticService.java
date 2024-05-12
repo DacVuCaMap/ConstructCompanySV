@@ -82,6 +82,7 @@ public class StatisticService {
             statistic.setStartDay(statisticRequest.getStartDay());
             statistic.setCreateAt(new Date());
             statistic.setIsDeleted(false);
+            statistic.setTotalPay(0.0);
             //set cashleft
             //khong can
             //save
@@ -295,6 +296,7 @@ public class StatisticService {
         List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(orderId);
         List<Statistic> statisticNew = new ArrayList<>();
         double cashLeft = 0.0;
+        double totalPayment = 0.0;
         for (Statistic statistic : statistics){
             statistic.setCashLeft(cashLeft);
             List<Payment> payments = paymentRepository.findAllByStatisticId(statistic.getId());
@@ -313,18 +315,20 @@ public class StatisticService {
                 Date minPaymentDate = minDate.get();
                 statistic.setStartDay(minPaymentDate);
                 statistic.setEndDay(maxPaymentDate);
-                // Sử dụng maxPaymentDate và minPaymentDate ở đây theo nhu cầu của bạn
+
             }
             cashLeft = statistic.getCashLeft()+sumPay-statistic.getTotalAmount();
-
+            totalPayment +=sumPay;
+            statistic.setTotalPay(sumPay);
             statisticNew.add(statistic);
         }
         statisticRepository.saveAll(statisticNew);
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isPresent()){
             Order order = optionalOrder.get();
-            order.setLeftAmount(cashLeft);
-            order.setIsPaymented(cashLeft == 0.0);
+            double leftAmount = order.getTotalAmount()-totalPayment;
+            order.setLeftAmount(leftAmount);
+            order.setIsPaymented(leftAmount == 0.0);
             orderRepository.save(order);
         }
     }

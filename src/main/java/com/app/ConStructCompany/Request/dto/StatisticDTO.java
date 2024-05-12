@@ -15,4 +15,5 @@ public class StatisticDTO {
     private Date createAt;
     private Date updateAt;
     private Double totalAmount;
+    private Double totalPay;
 }

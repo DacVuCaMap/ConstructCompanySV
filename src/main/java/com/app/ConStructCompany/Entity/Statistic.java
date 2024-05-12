@@ -57,4 +57,6 @@ public class Statistic {
     private Order order;
     @Column(name = "cashLeft")
     private Double cashLeft;
+    @Column(name = "totalPay")
+    private Double totalPay;
 }

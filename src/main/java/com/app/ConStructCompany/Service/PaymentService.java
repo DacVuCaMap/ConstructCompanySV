@@ -113,8 +113,9 @@ public class PaymentService {
                 statistic.setStartDay(startDay);
                 statistic.setEndDay(endDay);
                 statistic.setIsDeleted(false);
+                statistic.setTotalPay(0.0);
                 statisticRepository.save(statistic);
-                System.out.println(statistic);
+//                System.out.println(statistic);
             }
             else{
                 System.out.println("Order khong ton tai");

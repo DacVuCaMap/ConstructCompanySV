@@ -25,7 +25,7 @@ public class CustomerController {
     private final CustomerService customerService;
     private final CustomerRepository customerRepository;
     @PostMapping("/add-customer")
-    public PostCustomerResponse addCustomer(@RequestBody @Valid AddCustomerRequest addCustomerRequest){
+    public PostCustomerResponse addCustomer(@RequestBody AddCustomerRequest addCustomerRequest){
         return customerService.addCustomer(addCustomerRequest);
     }
 
