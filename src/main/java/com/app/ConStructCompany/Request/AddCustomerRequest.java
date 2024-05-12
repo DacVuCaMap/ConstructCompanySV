@@ -25,7 +25,7 @@ public class AddCustomerRequest extends CustomerRequest{
     @NotNull(message = "Representative customer cannot be null")
     private String representativeCustomer;
 
-    @Pattern(regexp = "^0[0-9]{8,11}$", message = "Invalid phone number")
+    @Pattern(regexp = "^0[0-9]$", message = "Invalid phone number")
     private String phoneNumber;
     @Email(message = "not email")
     private String email;

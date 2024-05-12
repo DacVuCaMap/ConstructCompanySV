@@ -55,11 +55,11 @@ public class StatisticService {
 
     public Statistic addStatistic(StatisticAddRequest statisticAddRequest) {
         //check day
-        if (!checkDayIn(statisticAddRequest.getStatistic().getStartDay(), statisticAddRequest.getStatistic().getOrderId())
-        || !checkDayIn(statisticAddRequest.getStatistic().getEndDay(), statisticAddRequest.getStatistic().getOrderId())){
-            return null;
-        }
-        System.out.println("vao day");
+//        if (!checkDayIn(statisticAddRequest.getStatistic().getStartDay(), statisticAddRequest.getStatistic().getOrderId())
+//        || !checkDayIn(statisticAddRequest.getStatistic().getEndDay(), statisticAddRequest.getStatistic().getOrderId())){
+//            return null;
+//        }
+//        System.out.println("vao day");
         Statistic statistic = new Statistic();
         StatisticRequest statisticRequest = statisticAddRequest.getStatistic();
         List<StatisticDetailRequest> statisticDetailRequests = statisticAddRequest.getStatisticDetails();
@@ -179,6 +179,7 @@ public class StatisticService {
             }
 
             statisticDetailRepository.deleteAll(statisticDetailsToDelete);
+            System.out.println(currentStatisticDetails);
             statisticDetailRepository.saveAll(currentStatisticDetails);
             updateAllStatisticByOrder(statisticAddRequest.getStatistic().getOrderId());
             return ResponseEntity.ok("Cập nhật thành công");
@@ -298,7 +299,24 @@ public class StatisticService {
             statistic.setCashLeft(cashLeft);
             List<Payment> payments = paymentRepository.findAllByStatisticId(statistic.getId());
             Double sumPay = payments.stream().mapToDouble(Payment::getPrice).sum();
+            //get day
+            Optional<Date> maxDate = payments.stream()
+                    .map(Payment::getDay)
+                    .max(Comparator.comparing(Date::getTime));
+
+            Optional<Date> minDate = payments.stream()
+                    .map(Payment::getDay)
+                    .min(Comparator.comparing(Date::getTime));
+
+            if (maxDate.isPresent() && minDate.isPresent()) {
+                Date maxPaymentDate = maxDate.get();
+                Date minPaymentDate = minDate.get();
+                statistic.setStartDay(minPaymentDate);
+                statistic.setEndDay(maxPaymentDate);
+                // Sử dụng maxPaymentDate và minPaymentDate ở đây theo nhu cầu của bạn
+            }
             cashLeft = statistic.getCashLeft()+sumPay-statistic.getTotalAmount();
+
             statisticNew.add(statistic);
         }
         statisticRepository.saveAll(statisticNew);
@@ -306,8 +324,7 @@ public class StatisticService {
         if (optionalOrder.isPresent()){
             Order order = optionalOrder.get();
             order.setLeftAmount(cashLeft);
-            boolean flag = cashLeft == 0 ? true : false;
-            order.setIsPaymented(flag);
+            order.setIsPaymented(cashLeft == 0.0);
             orderRepository.save(order);
         }
     }

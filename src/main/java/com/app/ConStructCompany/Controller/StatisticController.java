@@ -43,7 +43,7 @@ public class StatisticController {
 
     @PostMapping("/edit")
     public ResponseEntity<?> editStatistic(@RequestBody StatisticAddRequest statisticAddRequest) {
-
+        System.out.println(statisticAddRequest);
         return statisticService.editStatistic(statisticAddRequest);
     }
 
