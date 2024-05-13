@@ -1,5 +1,6 @@
 package com.app.ConStructCompany.Service;
 
+import com.app.ConStructCompany.Entity.Customer;
 import com.app.ConStructCompany.Entity.Order;
 import com.app.ConStructCompany.Entity.Payment;
 import com.app.ConStructCompany.Entity.Statistic;
@@ -7,7 +8,10 @@ import com.app.ConStructCompany.Repository.OrderRepository;
 import com.app.ConStructCompany.Repository.PaymentRepository;
 import com.app.ConStructCompany.Repository.StatisticRepository;
 import com.app.ConStructCompany.Request.RequestPayment;
+import com.app.ConStructCompany.Request.dto.OrderDto;
 import com.app.ConStructCompany.Request.dto.PaymentDTO;
+import com.app.ConStructCompany.Request.dto.StatisticDTO;
+import com.app.ConStructCompany.Response.CustomerResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +28,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
     public List<PaymentDTO> getAllPaymentDTO(Long id){
-        List<Payment> paymentList = paymentRepository.findAllByStatisticId(id);
+        List<Payment> paymentList = paymentRepository.findAllByStatisticIdOrderByDayAsc(id);
         return paymentList.stream().map(this::convertToPaymentDTO).collect(Collectors.toList());
     }
     private List<Payment> getAllByStatisticId(Long id){
@@ -137,8 +141,35 @@ public class PaymentService {
 //
 //        return total;
 //    }
+    public List<StatisticDTO> getStatisticByOrder(Long id){
+        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(id);
+        Order order = statistics.getFirst().getOrder();
+        Customer customer = statistics.getFirst().getCustomer();
+        OrderDto orderDto = convertToOrderDto(order);
+        List<StatisticDTO> statisticDTOS = new ArrayList<>();
+        for (Statistic statistic : statistics){
+            StatisticDTO statisticDTO = modelMapper.map(statistic, StatisticDTO.class);
+//            System.out.println(statisticDTO);
+            List<PaymentDTO> payments =getAllPaymentDTO(statistic.getId());
+
+//            System.out.println("paylist: "+payments);
+
+            statisticDTO.setPayments(payments);
+            statisticDTO.setOrder(orderDto);
+            statisticDTO.setCustomer(converToCus(customer));
+            statisticDTOS.add(statisticDTO);
+        }
+//        System.out.println(statisticDTOS);
+        return statisticDTOS;
+    }
     public PaymentDTO convertToPaymentDTO(Payment payment){
         return modelMapper.map(payment,PaymentDTO.class);
+    }
+    public CustomerResponse converToCus(Customer customer){
+        return modelMapper.map(customer,CustomerResponse.class);
+    }
+    public OrderDto convertToOrderDto(Order order){
+        return modelMapper.map(order,OrderDto.class);
     }
 
 }

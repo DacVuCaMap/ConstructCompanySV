@@ -267,28 +267,33 @@ public class StatisticService {
         return ResponseEntity.ok().body(getStatisticResponse);
 
     }
-    public List<StatisticDTO> getStatisticByOrder(Long id){
-        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(id);
-        List<StatisticDTO> statisticDTOS = new ArrayList<>();
-        for (Statistic statistic : statistics){
-            StatisticDTO statisticDTO = modelMapper.map(statistic, StatisticDTO.class);
-            statisticDTOS.add(statisticDTO);
-        }
-        return statisticDTOS;
-    }
+//    public List<StatisticDTO> getStatisticByOrder(Long id){
+//        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(id);
+//        List<StatisticDTO> statisticDTOS = new ArrayList<>();
+//        for (Statistic statistic : statistics){
+//            StatisticDTO statisticDTO = modelMapper.map(statistic, StatisticDTO.class);
+//            System.out.println(statisticDTO);
+//            List<Payment> payments = paymentRepository.findAllByStatisticId(statistic.getId());
+//            System.out.println("paylist: "+payments);
+//            statisticDTO.setPayments(payments);
+//            statisticDTOS.add(statisticDTO);
+//        }
+//        System.out.println(statisticDTOS);
+//        return statisticDTOS;
+//    }
     public int countStatistic(){
         return statisticRepository.countByIsDeletedFalse();
     }
-    private boolean checkDayIn(Date day,Long orderId){
-        List<StatisticDTO> list = getStatisticByOrder(orderId);
-        System.out.println("checkDayin" + list);
-        for (StatisticDTO statisticDTO : list){
-            if (!day.before(statisticDTO.getStartDay()) && !day.after(statisticDTO.getEndDay())){
-                return false;
-            }
-        }
-        return true;
-    }
+//    private boolean checkDayIn(Date day,Long orderId){
+//        List<StatisticDTO> list = getStatisticByOrder(orderId);
+//        System.out.println("checkDayin" + list);
+//        for (StatisticDTO statisticDTO : list){
+//            if (!day.before(statisticDTO.getStartDay()) && !day.after(statisticDTO.getEndDay())){
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
     public StatisticResponse convertStatisticResponse(Statistic statistic){
         return modelMapper.map(statistic,StatisticResponse.class);
     }

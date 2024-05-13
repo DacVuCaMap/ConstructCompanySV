@@ -1,14 +1,17 @@
 package com.app.ConStructCompany.Entity;
 
+import com.app.ConStructCompany.Request.dto.OrderDto;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "orders")
 @Data
+@RequiredArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
