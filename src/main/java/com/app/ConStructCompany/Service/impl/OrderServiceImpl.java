@@ -8,6 +8,10 @@ import com.app.ConStructCompany.Request.GetOrdersRequest;
 import com.app.ConStructCompany.Request.SetIsPaymentedRequest;
 import com.app.ConStructCompany.Request.dto.OrderDetailDto;
 import com.app.ConStructCompany.Request.dto.OrderDto;
+import com.app.ConStructCompany.Request.dto.PaymentDTO;
+import com.app.ConStructCompany.Request.dto.StatisticDTO;
+import com.app.ConStructCompany.Response.CustomerResponse;
+import com.app.ConStructCompany.Response.OrderListResponse;
 import com.app.ConStructCompany.Response.OrderResponse;
 import com.app.ConStructCompany.Response.PostOrderResponse;
 import com.app.ConStructCompany.Service.OrderService;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +42,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final PaymentService paymentService;
     private final ModelMapper modelMapper;
+    private final StatisticRepository statisticRepository;
+    private final PaymentRepository paymentRepository;
     @Override
     @Transactional
     public PostOrderResponse addOrder(AddOrderRequest addOrderRequest) {
@@ -293,5 +300,54 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int countOrders(){
         return orderRepository.countByIsDeletedFalse();
+    }
+    @Override
+    public List<OrderListResponse> listOrderByCusId(Long cusId){
+        List<OrderListResponse> listRs = new ArrayList<>();
+        List<Order> orderList = orderRepository.findAllByCustomerIdAndIsDeletedFalseAndIsPaymentedFalseOrderByCreateAtAsc(cusId);
+        if (orderList.size()<=0 || orderList==null){
+            return null;
+        }
+        for (Order order : orderList){
+            OrderDto orderDto = modelMapper.map(order,OrderDto.class);
+            List<StatisticDTO> statisticDTOList = getStatisticByOrder(order.getId());
+            OrderListResponse orderListResponse = new OrderListResponse();
+            orderListResponse.setOrder(orderDto);
+            orderListResponse.setStatistics(statisticDTOList);
+            listRs.add(orderListResponse);
+        }
+        return listRs;
+    };
+
+    private List<StatisticDTO> getStatisticByOrder(Long id){
+        List<Statistic> statistics = statisticRepository.findAllByOrderIdAndIsDeletedFalseOrderByCreateAtAsc(id);
+        Order order = statistics.getFirst().getOrder();
+        Customer customer = statistics.getFirst().getCustomer();
+        OrderDto orderDto = convertToOrderDto(order);
+        List<StatisticDTO> statisticDTOS = new ArrayList<>();
+        for (Statistic statistic : statistics){
+            StatisticDTO statisticDTO = modelMapper.map(statistic, StatisticDTO.class);
+//            System.out.println(statisticDTO);
+            List<PaymentDTO> payments =getAllPaymentDTO(statistic.getId());
+
+//            System.out.println("paylist: "+payments);
+
+            statisticDTO.setPayments(payments);
+            statisticDTO.setOrder(orderDto);
+            statisticDTO.setCustomer(converToCus(customer));
+            statisticDTOS.add(statisticDTO);
+        }
+//        System.out.println(statisticDTOS);
+        return statisticDTOS;
+    }
+    private List<PaymentDTO> getAllPaymentDTO(Long id){
+        List<Payment> paymentList = paymentRepository.findAllByStatisticIdOrderByDayAsc(id);
+        return paymentList.stream().map(this::convertToPaymentDTO).collect(Collectors.toList());
+    }
+    private PaymentDTO convertToPaymentDTO(Payment payment){
+        return modelMapper.map(payment,PaymentDTO.class);
+    }
+    private CustomerResponse converToCus(Customer customer){
+        return modelMapper.map(customer,CustomerResponse.class);
     }
 }

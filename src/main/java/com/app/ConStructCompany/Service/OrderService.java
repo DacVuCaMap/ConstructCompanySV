@@ -6,11 +6,14 @@ import com.app.ConStructCompany.Request.EditOrderRequest;
 import com.app.ConStructCompany.Request.GetOrdersRequest;
 import com.app.ConStructCompany.Request.SetIsPaymentedRequest;
 import com.app.ConStructCompany.Request.dto.OrderDto;
+import com.app.ConStructCompany.Response.OrderListResponse;
 import com.app.ConStructCompany.Response.OrderResponse;
 import com.app.ConStructCompany.Response.PostOrderResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public interface OrderService {
@@ -25,4 +28,6 @@ public interface OrderService {
     OrderResponse convertToOrderResponse(Order order);
     Double calLeftAmount();
     int countOrders();
+
+    List<OrderListResponse> listOrderByCusId(Long cusId);
 }

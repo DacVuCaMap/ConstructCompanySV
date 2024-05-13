@@ -53,4 +53,8 @@ public class Customer {
     private String representativeCustomer;
     @Column (name="email")
     private String email;
+    @Column(name = "totalDebt")
+    private Double totalDebt;
+    @Column(name = "payDebt")
+    private Double payDebt;
 }

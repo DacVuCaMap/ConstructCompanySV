@@ -18,4 +18,6 @@ public class CustomerResponse {
     private String positionCustomer;
     private String representativeCustomer;
     private String email;
+    private Double totalDebt;
+    private Double payDebt;
 }

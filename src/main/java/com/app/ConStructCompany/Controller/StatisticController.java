@@ -45,7 +45,9 @@ public class StatisticController {
     @PostMapping("/edit")
     public ResponseEntity<?> editStatistic(@RequestBody StatisticAddRequest statisticAddRequest) {
         System.out.println(statisticAddRequest);
-        return statisticService.editStatistic(statisticAddRequest);
+        statisticService.editStatistic(statisticAddRequest);
+        statisticService.updateAllStatisticByOrder(statisticAddRequest.getStatistic().getOrderId());
+        return ResponseEntity.ok().body("success");
     }
 
     @PostMapping("/delete")

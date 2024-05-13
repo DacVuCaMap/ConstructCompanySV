@@ -31,4 +31,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT COUNT(o) FROM Order o WHERE o.isDeleted=false")
     int countByIsDeletedFalse();
 
+    List<Order> findAllByCustomerIdAndIsDeletedFalseAndIsPaymentedFalseOrderByCreateAtAsc(Long id);
+
 }

@@ -335,6 +335,24 @@ public class StatisticService {
             order.setLeftAmount(leftAmount);
             order.setIsPaymented(leftAmount == 0.0);
             orderRepository.save(order);
+            //update debt customer
+            Customer customer = order.getCustomer();
+            Double debt = totDebtCus(customer.getId());
+            Double pay = totPayCus(customer.getId());
+            customer.setPayDebt(pay);
+            customer.setTotalDebt(debt);
+            customerRepository.save(customer);
         }
     }
+    public Double totDebtCus(Long cusId){
+        List<Order> orderList = orderRepository.findAllByCustomerIdAndIsDeletedFalseAndIsPaymentedFalseOrderByCreateAtAsc(cusId);
+        return orderList.stream().mapToDouble(Order::getTotalAmount).sum();
+    }
+    public Double totPayCus(Long cusId){
+        List<Order> orderList = orderRepository.findAllByCustomerIdAndIsDeletedFalseAndIsPaymentedFalseOrderByCreateAtAsc(cusId);
+        return orderList.stream()
+                .mapToDouble(Order::getLeftAmount)
+                .sum();
+    }
+
 }

@@ -62,6 +62,8 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setIsDeleted(false);
         customer.setPhoneNumber(addCustomerRequest.getPhoneNumber());
         customer.setEmail(addCustomerRequest.getEmail());
+        //update debt
+        customer.setTotalDebt(0.0);
         customerRepository.save(customer);
 
         return new PostCustomerResponse(HttpStatus.OK.value(), "Tạo khách hàng mới thành công");
