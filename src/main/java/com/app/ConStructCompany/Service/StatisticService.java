@@ -333,7 +333,7 @@ public class StatisticService {
             Order order = optionalOrder.get();
             double leftAmount = order.getTotalAmount()-totalPayment;
             order.setLeftAmount(leftAmount);
-            order.setIsPaymented(leftAmount == 0.0);
+            order.setIsPaymented(leftAmount <= 0.0);
             orderRepository.save(order);
             //update debt customer
             Customer customer = order.getCustomer();
